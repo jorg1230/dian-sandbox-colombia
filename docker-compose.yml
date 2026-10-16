@@ -1,0 +1,9 @@
+services:
+  dian-sandbox:
+    build: .
+    ports:
+      - "127.0.0.1:8099:8099"   # solo accesible desde tu equipo
+    volumes:
+      - sandbox-data:/data
+volumes:
+  sandbox-data:

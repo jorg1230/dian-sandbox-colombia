@@ -1,0 +1,32 @@
+{
+ "issuer_nit": "900000001",
+ "issuer_dv": "2",
+ "software_id": "00000000-0000-4000-8000-000000000001",
+ "pin": "12345",
+ "technical_key": "0000000000000000000000000000000000000001",
+ "environment": "2",
+ "invoice": {
+  "number": "SETP990000000",
+  "cufe": "ef119013854bf7533567a963179734f298d2daa50756e1bf47deec5576fab7e2ed8fe5a350ff205218c3e582d1c56e6e",
+  "files": [
+   "ad09000000010002600000002.xml",
+   "fv09000000010002600000001.xml"
+  ]
+ },
+ "credit_note": {
+  "number": "NC1",
+  "cufe": "b01a7b439561c4c2b00af33adb9c94225ce1341aec4c06cc71334457bfae828bada218cc73124eb67f43cb015ca4e192",
+  "files": [
+   "ad09000000010002600000004.xml",
+   "nc09000000010002600000003.xml"
+  ]
+ },
+ "debit_note": {
+  "number": "ND1",
+  "cufe": "4d95f66d2f39002781930fe763d6922da2aa2fbefa981b25b2f956a61d8c9a2bedf7d6ac61849496e9fd6faa4eef72b8",
+  "files": [
+   "ad09000000010002600000006.xml",
+   "nd09000000010002600000005.xml"
+  ]
+ }
+}

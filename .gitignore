@@ -1,0 +1,17 @@
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+data/
+*.db
+*.sqlite3
+# nunca versionar certificados ni claves
+*.p12
+*.pfx
+*.key
+*.pem
+*.csr
+*.crt
+.env
+.idea/
+.vscode/

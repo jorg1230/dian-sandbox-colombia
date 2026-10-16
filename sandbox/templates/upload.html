@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block title %}Subir XML{% endblock %}
+{% block body %}
+<h1>Subir documentos</h1>
+<p class="sub">Prueba un XML firmado sin pasar por SOAP: factura, nota crédito/débito, documento soporte, nómina electrónica o evento RADIAN. Acepta .xml o .zip.</p>
+<form class="card" method="post" enctype="multipart/form-data">
+  <label>Archivos</label><input type="file" name="files" multiple accept=".xml,.zip" required>
+  <p style="margin-top:16px"><button type="submit">Validar en el simulador</button></p>
+</form>
+{% endblock %}

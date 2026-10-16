@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block title %}Documento {{ doc.number }}{% endblock %}
+{% block body %}
+<h1>{{ KIND_LABELS.get(doc.kind, doc.kind) }} {{ doc.number }}
+  {% if doc.is_valid %}<span class="badge ok">Aceptado</span>{% else %}<span class="badge bad">Rechazado</span>{% endif %}</h1>
+<p class="sub">Recibido {{ doc.received_at }} vía {{ doc.via }} · StatusCode {{ doc.status_code }}</p>
+
+<h2>Hallazgos del simulador</h2>
+{% if doc.findings %}
+<table>
+  <tr><th>Código</th><th>Nivel</th><th>Mensaje</th></tr>
+  {% for f in doc.findings %}
+  <tr><td class="mono">{{ f.code }}</td>
+      <td><span class="badge {{ {'error': 'bad', 'warning': 'warn', 'info': 'info'}[f.severity] }}">{{ f.severity }}</span></td>
+      <td>{{ f.message }}</td></tr>
+  {% endfor %}
+</table>
+{% else %}<div class="card">Sin hallazgos.</div>{% endif %}
+
+<h2>Datos leídos</h2>
+<div class="card"><dl class="kv">
+  <dt>Número</dt><dd>{{ doc.number }}</dd>
+  <dt>CUFE / CUDE / CUNE</dt><dd class="mono">{{ doc.uuid }}</dd>
+  {% if doc.parsed.get('extra', {}).get('expected_uuid') %}<dt>Calculado por el simulador</dt><dd class="mono">{{ doc.parsed.extra.expected_uuid }}</dd>{% endif %}
+  <dt>Fecha y hora</dt><dd>{{ doc.parsed.get('issue_date') }} {{ doc.parsed.get('issue_time') }}</dd>
+  <dt>Emisor (NIT)</dt><dd>{{ doc.issuer_nit }}-{{ doc.parsed.get('issuer_dv') }}</dd>
+  <dt>Cliente / receptor</dt><dd>{{ doc.customer_id }}</dd>
+  <dt>Subtotal / Total</dt><dd>{{ doc.parsed.get('line_extension') }} / {{ doc.payable }}</dd>
+  <dt>IVA · INC · ICA</dt><dd>{{ doc.parsed.get('tax_iva') }} · {{ doc.parsed.get('tax_inc') }} · {{ doc.parsed.get('tax_ica') }}</dd>
+  <dt>Software ID</dt><dd class="mono">{{ doc.parsed.get('software_id') }}</dd>
+  <dt>Ambiente</dt><dd>{{ doc.parsed.get('environment') }}</dd>
+  {% if doc.parsed.get('reference_number') or doc.parsed.get('reference_uuid') %}<dt>Documento referenciado</dt><dd>{{ doc.parsed.get('reference_number') }} {{ doc.parsed.get('reference_uuid') }}</dd>{% endif %}
+  {% if doc.parsed.get('event_code') %}<dt>Evento</dt><dd>{{ doc.parsed.event_code }} · {{ event_codes.get(doc.parsed.event_code, '') }}</dd>{% endif %}
+  {% set cert = doc.parsed.get('extra', {}).get('certificate') %}
+  {% if cert %}<dt>Certificado</dt><dd>{{ cert.subject }}<br><span class="muted">emitido por {{ cert.issuer }} · vigente {{ cert.not_before[:10] }} a {{ cert.not_after[:10] }}</span></dd>{% endif %}
+</dl></div>
+
+<h2>XML recibido</h2>
+<p><a class="btn sec" href="{{ url_for('document_xml', doc_id=doc.id) }}">Descargar XML</a></p>
+<pre>{{ pretty }}</pre>
+{% endblock %}

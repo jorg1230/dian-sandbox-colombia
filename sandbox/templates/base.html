@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{% block title %}DIAN Sandbox{% endblock %} · SIMULADO</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+<div class="banner" role="alert">{{ BANNER }}</div>
+<header class="top"><div class="in">
+  <a class="logo" href="{{ url_for('dashboard') }}">DIAN Sandbox <span class="muted" style="font-weight:400">v{{ VERSION }}</span></a>
+  <nav>
+    {% set ep = request.endpoint %}
+    <a href="{{ url_for('dashboard') }}" class="{{ 'on' if ep == 'dashboard' }}">Resumen</a>
+    <a href="{{ url_for('connect') }}" class="{{ 'on' if ep == 'connect' }}">Conectar</a>
+    <a href="{{ url_for('readiness') }}" class="{{ 'on' if ep == 'readiness' }}">Preparación</a>
+    <a href="{{ url_for('documents') }}" class="{{ 'on' if ep in ('documents', 'document') }}">Documentos</a>
+    <a href="{{ url_for('upload') }}" class="{{ 'on' if ep == 'upload' }}">Subir XML</a>
+    <a href="{{ url_for('rules') }}" class="{{ 'on' if ep == 'rules' }}">Reglas</a>
+    <a href="{{ url_for('settings') }}" class="{{ 'on' if ep == 'settings' }}">Configuración</a>
+  </nav>
+</div></header>
+<main>
+  {% for m in get_flashed_messages() %}<div class="flash">{{ m }}</div>{% endfor %}
+  {% block body %}{% endblock %}
+  <p class="muted" style="margin-top:40px;font-size:13px">
+    Proyecto de desarrollo y pruebas. No es la DIAN ni usa sus sistemas: no genera validez legal ni tributaria.
+    Las reglas son un subconjunto propio (códigos <code>SBX-</code>), no las oficiales.
+  </p>
+</main>
+<script>
+document.querySelectorAll('[data-copy]').forEach(function (b) {
+  b.addEventListener('click', function () {
+    navigator.clipboard.writeText(b.getAttribute('data-copy')); var t = b.textContent; b.textContent = '¡Copiado!';
+    setTimeout(function () { b.textContent = t; }, 1200);
+  });
+});
+</script>
+</body>
+</html>

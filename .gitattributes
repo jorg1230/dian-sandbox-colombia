@@ -1,0 +1,2 @@
+# Los XML de muestra van firmados: no se deben tocar los saltos de linea
+samples/*.xml -text

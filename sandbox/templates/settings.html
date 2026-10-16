@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% block title %}Configuración{% endblock %}
+{% block body %}
+<h1>Configuración</h1>
+<p class="sub">Credenciales del software, rangos de numeración, requisitos del set y rigor de las validaciones.</p>
+<form method="post">
+<div class="card">
+  <div class="row">
+    <div><label>NIT del emisor (sin DV)</label><input type="text" name="issuer_nit" value="{{ s.issuer_nit }}"></div>
+    <div><label>Razón social</label><input type="text" name="issuer_name" value="{{ s.issuer_name }}"></div>
+    <div><label>Software ID</label><input type="text" name="software_id" value="{{ s.software_id }}"></div>
+    <div><label>PIN del software</label><input type="text" name="software_pin" value="{{ s.software_pin }}"></div>
+    <div><label>TestSetId</label><input type="text" name="test_set_id" value="{{ s.test_set_id }}"></div>
+    <div><label>Clave técnica por defecto</label><input type="text" name="technical_key" value="{{ s.technical_key }}"></div>
+    <div><label>Contraseña del certificado .p12</label><input type="text" name="cert_password" value="{{ s.cert_password }}"></div>
+  </div>
+  <p class="muted">Si cambias el NIT o la contraseña, el certificado de prueba se genera de nuevo la próxima vez que lo descargues.</p>
+</div>
+
+<h2>Requisitos del set de pruebas</h2>
+<div class="card"><div class="row">
+  <div><label>Facturas</label><input type="number" name="need_invoices" value="{{ s.need_invoices }}" min="0"></div>
+  <div><label>Notas crédito</label><input type="number" name="need_credit_notes" value="{{ s.need_credit_notes }}" min="0"></div>
+  <div><label>Notas débito</label><input type="number" name="need_debit_notes" value="{{ s.need_debit_notes }}" min="0"></div>
+  <div><label>Nóminas electrónicas (0 = no se exige)</label><input type="number" name="need_payrolls" value="{{ s.need_payrolls }}" min="0"></div>
+</div></div>
+
+<h2>Rangos de numeración</h2>
+<table>
+  <tr><th>Resolución</th><th>Prefijo</th><th>Desde</th><th>Hasta</th><th>Vigente desde</th><th>Vigente hasta</th><th>Clave técnica (opcional)</th></tr>
+  {% for r in ranges %}
+  <tr>
+    <td><input type="text" name="r_resolution_{{ loop.index0 }}" value="{{ r.resolution }}"></td>
+    <td><input type="text" name="r_prefix_{{ loop.index0 }}" value="{{ r.prefix }}"></td>
+    <td><input type="number" name="r_from_{{ loop.index0 }}" value="{{ r.from_number }}"></td>
+    <td><input type="number" name="r_to_{{ loop.index0 }}" value="{{ r.to_number }}"></td>
+    <td><input type="date" name="r_vfrom_{{ loop.index0 }}" value="{{ r.valid_from }}"></td>
+    <td><input type="date" name="r_vto_{{ loop.index0 }}" value="{{ r.valid_to }}"></td>
+    <td><input type="text" name="r_key_{{ loop.index0 }}" value="{{ r.technical_key }}"></td>
+  </tr>
+  {% endfor %}
+</table>
+<p class="muted">La última fila vacía sirve para agregar un rango. Deja prefijo y desde vacíos para quitarlo.</p>
+
+<h2>Parámetros de las reglas</h2>
+<div class="card"><div class="row">
+  <div><label>UVT vigente (COP) — tope de consumidor final = 5 UVT</label><input type="number" name="uvt_value" value="{{ s.uvt_value }}"></div>
+  <div><label>Antigüedad máxima del documento (días, 0 = sin límite)</label><input type="number" name="max_age_days" value="{{ s.max_age_days }}" min="0"></div>
+</div><p class="muted">El valor de la UVT cambia cada año: verifícalo en la DIAN antes de confiar en esa regla.</p></div>
+
+<h2>Validaciones</h2>
+<div class="card">
+  {% for key, label in [('verify_signature', 'Verificar la firma digital del XML'), ('verify_cufe', 'Recalcular y comparar CUFE/CUDE'),
+     ('verify_totals', 'Verificar que los totales cuadren'), ('require_environment_2', 'Exigir ambiente 2 (habilitación)'),
+     ('dian_filter', 'Aplicar el paquete de reglas «filtro DIAN» (partes, impuestos, pago, fechas, QR, moneda, notas, ítems)'),
+     ('allow_external_references', 'Permitir referencias a documentos que el simulador no conoce (notas y eventos)')] %}
+  <label style="font-weight:400"><input type="checkbox" name="{{ key }}" {{ 'checked' if s[key] in ('1', 'true', 'on') }}> {{ label }}</label>
+  {% endfor %}
+</div>
+<p style="margin-top:18px"><button type="submit">Guardar</button></p>
+</form>
+<form method="post" action="{{ url_for('align_samples') }}" style="margin-top:12px">
+  <button class="sec" type="submit">Usar los datos de los documentos de muestra (samples/)</button>
+  <span class="muted"> — para probar con <code>tools/send_samples.py</code></span>
+</form>
+{% endblock %}

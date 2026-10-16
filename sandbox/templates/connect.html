@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block title %}Conectar{% endblock %}
+{% block body %}
+{% macro copy(value) %}<div class="copy"><code>{{ value }}</code><button type="button" class="sec" data-copy="{{ value }}">Copiar</button></div>{% endmacro %}
+<h1>Conectar tu software</h1>
+<p class="sub">Estos son los mismos datos que pide la DIAN al habilitarte, pero los genera el simulador (ficticios y aleatorios en cada instalación).</p>
+<div class="notice">Solo sirven contra este simulador. No uses datos reales aquí y no esperes que la DIAN los reconozca.</div>
+
+<h2>1 · Servicio</h2>
+<div class="card"><dl class="kv">
+  <dt>URL del servicio SOAP</dt><dd>{{ copy(soap_url) }}</dd>
+  <dt>WSDL</dt><dd>{{ copy(soap_url ~ '?wsdl') }}</dd>
+</dl></div>
+
+<h2>2 · Datos del emisor y del software</h2>
+<div class="card"><dl class="kv">
+  <dt>NIT del emisor</dt><dd>{{ copy(vat) }}</dd>
+  <dt>Razón social</dt><dd>{{ copy(s.issuer_name) }}</dd>
+  <dt>Software ID</dt><dd>{{ copy(s.software_id) }}</dd>
+  <dt>PIN del software</dt><dd>{{ copy(s.software_pin) }}</dd>
+  <dt>TestSetId</dt><dd>{{ copy(s.test_set_id) }}</dd>
+  <dt>Clave técnica (rango)</dt><dd>{{ copy(s.technical_key) }}</dd>
+</dl></div>
+
+<h2>3 · Resolución de numeración</h2>
+<table>
+  <tr><th>Resolución</th><th>Prefijo</th><th>Desde</th><th>Hasta</th><th>Vigencia</th></tr>
+  {% for r in ranges %}<tr><td class="mono">{{ r.resolution }}</td><td class="mono">{{ r.prefix }}</td><td>{{ r.from_number }}</td>
+    <td>{{ r.to_number }}</td><td>{{ r.valid_from }} a {{ r.valid_to }}</td></tr>{% endfor %}
+</table>
+
+<h2>4 · Certificado de firma (de prueba)</h2>
+<div class="card">
+  <p>Certificado <code>.p12</code> autofirmado, solo para firmar contra este simulador.</p>
+  <dl class="kv"><dt>Contraseña</dt><dd>{{ copy(s.cert_password) }}</dd></dl>
+  <p style="margin-top:12px"><a class="btn" href="{{ url_for('certificate') }}">Descargar certificado .p12</a></p>
+</div>
+
+<h2>Conectar Odoo en un minuto</h2>
+<div class="card">
+  <ol>
+    <li>Instala el addon <code>l10n_co_dian_sandbox_connector</code> (carpeta <code>odoo_connector/</code>) y agrega a <code>odoo.conf</code>:
+      {{ copy('dian_sandbox_url = ' ~ soap_url) }}</li>
+    <li>Ejecuta el aprovisionamiento, que configura compañía, diario, certificado, cliente y producto de prueba:
+      {{ copy('python tools/provision_odoo.py --sandbox ' ~ soap_url.rsplit('/', 1)[0] ~ ' --odoo http://localhost:8069 --db TU_BD --user admin --password admin') }}</li>
+    <li>En Odoo crea una factura, confírmala y mira aquí el resultado. Más detalle en <code>docs/CONECTAR_ODOO.md</code>.</li>
+  </ol>
+</div>
+{% endblock %}

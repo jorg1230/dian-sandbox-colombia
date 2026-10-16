@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block title %}Lista de preparación{% endblock %}
+{% block body %}
+<h1>Lista de preparación</h1>
+<p class="sub">Qué ya demostró tu software contra el simulador. Se calcula con lo que el simulador ha recibido; no es una certificación de la DIAN.</p>
+<table>
+  <tr><th></th><th>Verificación</th><th>Tipo</th><th>Detalle</th></tr>
+  {% for c in checks %}
+  <tr>
+    <td>{% if c.ok %}<span class="badge ok">✔</span>{% else %}<span class="badge {{ 'bad' if c.required else 'warn' }}">✖</span>{% endif %}</td>
+    <td>{{ c.title }}</td>
+    <td>{% if c.required %}<span class="badge info">Requerido</span>{% else %}<span class="badge info">Recomendado</span>{% endif %}</td>
+    <td class="muted">{{ c.detail }}</td>
+  </tr>
+  {% endfor %}
+</table>
+<p class="muted" style="margin-top:14px">Los requisitos del set de pruebas cambian según el modo de operación (software propio, proveedor tecnológico); ajusta las cantidades en
+<a href="{{ url_for('settings') }}">Configuración</a> según lo que muestre tu portal de habilitación. Reglas que se aplican: <a href="{{ url_for('rules') }}">catálogo de reglas</a>.</p>
+{% endblock %}

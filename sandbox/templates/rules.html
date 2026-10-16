@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}Reglas{% endblock %}
+{% block body %}
+<h1>Catálogo de reglas del simulador</h1>
+<p class="sub">Reglas propias con prefijo <code>SBX-</code>, inspiradas en los requisitos públicos de la DIAN. No son las reglas oficiales ni se mantienen al día con ellas:
+la fuente de verdad es la normativa vigente de la DIAN.</p>
+{% for family, rules in grouped.items() %}
+<h2>{{ family }}</h2>
+<table>
+  <tr><th>Código</th><th>Nivel</th><th>Descripción</th><th>Referencia orientativa</th></tr>
+  {% for code, severity, desc, ref in rules %}
+  <tr><td class="mono">{{ code }}</td><td><span class="badge {{ 'bad' if severity == 'error' else 'warn' }}">{{ severity }}</span></td><td>{{ desc }}</td><td class="muted">{{ ref }}</td></tr>
+  {% endfor %}
+</table>
+{% endfor %}
+<h2>Reglas básicas (siempre activas)</h2>
+<table>
+  <tr><th>Código</th><th>Descripción</th></tr>
+  <tr><td class="mono">SBX-XML-001 · SBX-DOC-001</td><td>XML mal formado o tipo de documento no reconocido.</td></tr>
+  <tr><td class="mono">SBX-SIG-001…006</td><td>Firma ausente o inválida (resúmenes y SignatureValue), certificado ilegible o fuera de vigencia a la fecha de emisión.</td></tr>
+  <tr><td class="mono">SBX-CUFE-001 · SBX-CUNE-001</td><td>CUFE/CUDE/CUNE recalculado (SHA-384) distinto del informado.</td></tr>
+  <tr><td class="mono">SBX-NIT-001…003</td><td>NIT del emisor no registrado, dígito de verificación incorrecto o ausente.</td></tr>
+  <tr><td class="mono">SBX-SW-001…003</td><td>SoftwareID distinto del registrado o SoftwareSecurityCode incorrecto.</td></tr>
+  <tr><td class="mono">SBX-NUM-001 · 002</td><td>Número fuera del rango autorizado o fecha fuera de la vigencia de la resolución.</td></tr>
+  <tr><td class="mono">SBX-TOT-001</td><td>La suma de las líneas no coincide con el total.</td></tr>
+  <tr><td class="mono">SBX-NC-001 · REF-001/002</td><td>Nota sin concepto de corrección o sin documento referenciado (que debe existir y estar aceptado).</td></tr>
+  <tr><td class="mono">SBX-DUP-001</td><td>Número ya aceptado antes.</td></tr>
+  <tr><td class="mono">SBX-ENV-001 · DATE-001/002</td><td>Ambiente distinto de 2 (habilitación) o fecha inválida/futura.</td></tr>
+  <tr><td class="mono">SBX-EVT-001…003</td><td>Eventos RADIAN: código desconocido o factura referenciada inexistente.</td></tr>
+</table>
+{% endblock %}

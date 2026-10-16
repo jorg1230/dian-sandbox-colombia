@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block title %}Resumen{% endblock %}
+{% block body %}
+<h1>Resumen</h1>
+<p class="sub">Servicio SOAP simulado de habilitación. Conecta tu software a <code>{{ soap_url }}</code>.</p>
+
+<h2>Set de pruebas {% if progress.complete %}<span class="badge ok">COMPLETO</span>{% else %}<span class="badge warn">EN CURSO</span>{% endif %}</h2>
+<div class="grid">
+  {% for r in progress.rows %}
+  <div class="card stat {{ 'done' if r.done }}"><div class="n">{{ r.have }} / {{ r.need }}</div><div class="l">{{ r.label }}s aceptadas</div></div>
+  {% endfor %}
+  <div class="card stat"><div class="n">{{ totals.total }}</div><div class="l">documentos recibidos ({{ totals.valid }} aceptados, {{ totals.rejected }} rechazados)</div></div>
+</div>
+
+<h2>Últimos documentos</h2>
+{% if docs %}
+<table>
+  <tr><th>#</th><th>Tipo</th><th>Número</th><th>Emisor</th><th>Total</th><th>Resultado</th><th>Recibido</th></tr>
+  {% for d in docs %}
+  <tr>
+    <td><a href="{{ url_for('document', doc_id=d.id) }}">{{ d.id }}</a></td>
+    <td>{{ KIND_LABELS.get(d.kind, d.kind) }}</td><td class="mono">{{ d.number }}</td><td class="mono">{{ d.issuer_nit }}</td>
+    <td class="right">{{ d.payable }}</td>
+    <td>{% if d.is_valid %}<span class="badge ok">Aceptado</span>{% else %}<span class="badge bad">Rechazado</span>{% endif %}</td>
+    <td class="muted">{{ d.received_at }}</td>
+  </tr>
+  {% endfor %}
+</table>
+{% else %}
+<div class="card">Aún no se ha recibido ningún documento. Ve a <a href="{{ url_for('connect') }}">Conectar</a> para ver las credenciales
+(Software ID, PIN, TestSetId, certificado de prueba) y configurar Odoo u otro software, o prueba con <a href="{{ url_for('upload') }}">Subir XML</a>.</div>
+{% endif %}
+<form method="post" action="{{ url_for('reset') }}" style="margin-top:18px" onsubmit="return confirm('¿Borrar todos los documentos del simulador?')">
+  <button class="danger" type="submit">Borrar documentos recibidos</button>
+</form>
+{% endblock %}
