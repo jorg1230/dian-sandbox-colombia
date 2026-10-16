@@ -10,6 +10,8 @@ from __future__ import annotations
 from datetime import date, datetime
 from decimal import Decimal
 
+from lxml import etree
+
 from . import ubl
 from .ubl import NS, Finding, Parsed, money, nit_check_digit
 
@@ -191,20 +193,32 @@ _NON_MONEY = ("Fecha", "Hora", "Cantidad", "Porcentaje", "Dias", "Tipo", "Descri
               "Tiempo", "Id", "Numero", "Pais", "Departamento", "Municipio", "Direccion")
 
 
+def _num(value):
+    try:
+        return Decimal(str(value).strip())
+    except Exception:
+        return None
+
+
 def _sum_money(section) -> Decimal:
+    """Suma los importes de una sección de nómina: atributos monetarios (Pago, Deduccion…) y elementos simples
+    con valor numérico (RetencionFuente, AFC, Dotacion…)."""
     total = Decimal("0")
     if section is None:
         return total
     for el in section.iter():
         if not isinstance(el.tag, str):
             continue
+        if len(el) == 0 and el is not section:  # elemento simple con importe en el texto
+            number = _num(el.text) if el.text and el.text.strip() else None
+            if number is not None and not any(k in etree.QName(el).localname for k in _NON_MONEY):
+                total += number
         for name, value in el.attrib.items():
-            if any(name.startswith(prefix) or prefix in name for prefix in _NON_MONEY):
+            if any(prefix in name for prefix in _NON_MONEY):
                 continue
-            try:
-                total += Decimal(value)
-            except Exception:
-                continue
+            number = _num(value)
+            if number is not None:
+                total += number
     return total
 
 

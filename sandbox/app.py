@@ -81,7 +81,7 @@ def create_app(data_dir: str | None = None) -> Flask:
     @app.route("/documents")
     def documents():
         kind, status = request.args.get("kind", ""), request.args.get("status", "")
-        return render_template("documents.html", docs=store.documents(limit=300, kind=kind, status=status),
+        return render_template("documents.html", docs=store.documents(limit=2000, kind=kind, status=status),
                                kind=kind, status=status)
 
     @app.route("/documents/<int:doc_id>")

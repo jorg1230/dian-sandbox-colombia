@@ -149,3 +149,11 @@ def test_every_rule_in_catalog_is_covered_by_a_test():
 def test_rule_catalog_shape():
     for code, (family, severity, desc, ref) in dian_rules.RULES.items():
         assert code.startswith("SBX-") and severity in ("error", "warning") and desc and family and ref
+
+
+def test_payroll_sum_counts_simple_elements_and_attributes():
+    """Las deducciones pueden venir como atributos (Salud) o como elementos simples (RetencionFuente)."""
+    section = etree.fromstring(
+        '<Deducciones xmlns="x"><Salud Porcentaje="4.00" Deduccion="80000.00"/><FondoPension Porcentaje="4.00" '
+        'Deduccion="80000.00"/><RetencionFuente>1124000.00</RetencionFuente><AFC>5000.00</AFC></Deducciones>')
+    assert dian_rules._sum_money(section) == dian_rules.Decimal("1289000.00")

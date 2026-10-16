@@ -48,3 +48,7 @@ label { display:block; font-weight:600; margin:10px 0 3px; } .row { display:grid
 .notice { background:var(--warnbg); color:var(--warn); border-radius:10px; padding:10px 14px; margin:14px 0; }
 .muted { color:var(--muted); } .right { text-align:right; }
 @media (max-width: 600px) { .kv { grid-template-columns:1fr; } header.top .in { gap:10px; } }
+
+.scroll-table { max-height:calc(100vh - 230px); min-height:240px; overflow:auto; border:1px solid var(--line); border-radius:12px; }
+.scroll-table table { border:0; border-radius:0; overflow:visible; }
+.scroll-table th { position:sticky; top:0; z-index:1; box-shadow:0 1px 0 var(--line); }
