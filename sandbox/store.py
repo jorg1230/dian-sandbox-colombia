@@ -163,8 +163,12 @@ class Store:
         with self._cx() as cx:
             return self._row(cx.execute("SELECT * FROM documents WHERE id = ?", (doc_id,)).fetchone())
 
-    def documents(self, limit: int = 200, kind: str = "", status: str = "") -> list[dict]:
+    def documents(self, limit: int = 200, kind: str = "", status: str = "", q: str = "") -> list[dict]:
         sql, args = "SELECT * FROM documents WHERE 1=1", []
+        if q:
+            like = f"%{q.strip()}%"
+            sql += " AND (number LIKE ? OR customer_id LIKE ? OR issuer_nit LIKE ? OR uuid LIKE ?)"
+            args += [like, like, like, like]
         if kind:
             sql += " AND kind = ?"
             args.append(kind)

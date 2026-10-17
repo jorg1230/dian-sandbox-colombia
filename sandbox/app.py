@@ -21,6 +21,21 @@ from .ubl import EVENT_CODES, KIND_LABELS
 SOAP_PATH = "/WcfDianCustomerServices.svc"
 
 
+import re as _re
+
+
+def _worker_name(xml) -> str:
+    """Nombre del trabajador (solo para mostrarlo) a partir del XML de nómina individual."""
+    if isinstance(xml, bytes):
+        xml = xml.decode("utf-8", "ignore")
+    m = _re.search(r"<Trabajador\b([^>]*)>", xml or "")
+    if not m:
+        return ""
+    attrs = dict(_re.findall(r'(\w+)="([^"]*)"', m.group(1)))
+    return " ".join(filter(None, [attrs.get("PrimerNombre"), attrs.get("OtrosNombres"),
+                                  attrs.get("PrimerApellido"), attrs.get("SegundoApellido")]))
+
+
 def create_app(data_dir: str | None = None) -> Flask:
     data_dir = data_dir or os.environ.get("SANDBOX_DATA_DIR", os.path.join(os.getcwd(), "data"))
     if data_dir != ":memory:":
@@ -80,9 +95,12 @@ def create_app(data_dir: str | None = None) -> Flask:
 
     @app.route("/documents")
     def documents():
-        kind, status = request.args.get("kind", ""), request.args.get("status", "")
-        return render_template("documents.html", docs=store.documents(limit=2000, kind=kind, status=status),
-                               kind=kind, status=status)
+        kind, status, q = request.args.get("kind", ""), request.args.get("status", ""), request.args.get("q", "")
+        docs = store.documents(limit=2000, kind=kind, status=status, q=q)
+        for d in docs:                       # nómina: nombre del trabajador, tomado del XML recibido
+            if d.get("kind") == "payroll":
+                d["worker"] = _worker_name(d.get("xml") or "")
+        return render_template("documents.html", docs=docs, kind=kind, status=status, q=q)
 
     @app.route("/documents/<int:doc_id>")
     def document(doc_id):
@@ -213,7 +231,7 @@ def create_app(data_dir: str | None = None) -> Flask:
 
     @app.route("/api/documents")
     def api_documents():
-        docs = store.documents(limit=int(request.args.get("limit", 100)), kind=request.args.get("kind", ""),
+        docs = store.documents(limit=int(request.args.get("limit", 100)), kind=request.args.get("kind", ""), q=request.args.get("q", ""),
                                status=request.args.get("status", ""))
         for d in docs:
             d.pop("xml", None)

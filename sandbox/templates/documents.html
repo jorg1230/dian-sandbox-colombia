@@ -10,16 +10,17 @@
   <div><label>Resultado</label><select name="status">
     <option value="">Todos</option><option value="valid" {{ 'selected' if status == 'valid' }}>Aceptados</option>
     <option value="rejected" {{ 'selected' if status == 'rejected' }}>Rechazados</option></select></div>
+  <div style="flex:1;min-width:240px"><label>Buscar (número, documento del trabajador o cliente, NIT, CUFE/CUNE)</label><input type="search" name="q" value="{{ q or '' }}" placeholder="p. ej. 1086510092"></div>
   <div><button type="submit">Filtrar</button></div>
 </form>
 <div class="scroll-table">
 <table>
-  <tr><th>#</th><th>Tipo</th><th>Número</th><th>Emisor</th><th>Cliente</th><th>Total</th><th>Vía</th><th>Resultado</th><th>Hallazgos</th></tr>
+  <tr><th>#</th><th>Tipo</th><th>Número</th><th>Emisor</th><th>Cliente / trabajador</th><th>Total</th><th>Vía</th><th>Resultado</th><th>Hallazgos</th></tr>
   {% for d in docs %}
   <tr>
     <td><a href="{{ url_for('document', doc_id=d.id) }}">{{ d.id }}</a></td>
     <td>{{ KIND_LABELS.get(d.kind, d.kind) }}</td><td class="mono">{{ d.number }}</td><td class="mono">{{ d.issuer_nit }}</td>
-    <td class="mono">{{ d.customer_id }}</td><td class="right">{{ d.payable }}</td><td class="muted">{{ d.via }}</td>
+    <td><span class="mono">{{ d.customer_id }}</span>{% if d.worker %}<br><span class="muted">{{ d.worker }}</span>{% endif %}</td><td class="right">{{ d.payable }}</td><td class="muted">{{ d.via }}</td>
     <td>{% if d.is_valid %}<span class="badge ok">Aceptado</span>{% else %}<span class="badge bad">Rechazado</span>{% endif %}</td>
     <td>{% for f in d.findings if f.severity == 'error' %}<span class="badge bad" title="{{ f.message }}">{{ f.code }}</span> {% endfor %}</td>
   </tr>
